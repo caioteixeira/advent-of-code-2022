@@ -1,17 +1,7 @@
-use std::env;
-use std::fs::File;
-use std::io::{self, BufRead};
-use std::path::Path;
-
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let input = include_str!("input.txt");
 
-    let filename = match args.len() {
-        2 => args[1].as_str(),
-        _ => "input.txt",
-    };
-
-    let input: Vec<String> = read_lines(filename).unwrap().flatten().collect();
+    let input: Vec<&str> = input.lines().collect();
 
     let total_score = compute_total_score(&input);
     println!("Part 1: Total score is {}", total_score);
@@ -20,7 +10,7 @@ fn main() {
     println!("Part 2: Total score is {}", total_moves_score);
 }
 
-fn compute_total_score(input: &Vec<String>) -> u32 {
+fn compute_total_score(input: &Vec<&str>) -> u32 {
     let mut score = 0;
 
     for line in input {
@@ -43,7 +33,7 @@ fn compute_total_score(input: &Vec<String>) -> u32 {
     score
 }
 
-fn compute_moves(input: &Vec<String>) -> u32 {
+fn compute_moves(input: &Vec<&str>) -> u32 {
     let mut score = 0;
 
     for line in input {
@@ -68,14 +58,6 @@ fn compute_moves(input: &Vec<String>) -> u32 {
     score
 }
 
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where
-    P: AsRef<Path>,
-{
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
-}
-
 #[cfg(test)]
 mod tests {
     use crate::compute_moves;
@@ -83,97 +65,41 @@ mod tests {
 
     #[test]
     fn compute_sample_score() {
-        assert_eq!(
-            15,
-            compute_total_score(&vec!(
-                String::from("A Y"),
-                String::from("B X"),
-                String::from("C Z")
-            ))
-        )
+        assert_eq!(15, compute_total_score(&vec!("A Y", "B X", "C Z")))
     }
 
     #[test]
     fn compute_victories() {
-        assert_eq!(
-            24,
-            compute_total_score(&vec!(
-                String::from("A Y"),
-                String::from("B Z"),
-                String::from("C X")
-            ))
-        )
+        assert_eq!(24, compute_total_score(&vec!("A Y", "B Z", "C X")))
     }
 
     #[test]
     fn compute_draw_scores() {
-        assert_eq!(
-            15,
-            compute_total_score(&vec!(
-                String::from("A X"),
-                String::from("B Y"),
-                String::from("C Z")
-            ))
-        )
+        assert_eq!(15, compute_total_score(&vec!("A X", "B Y", "C Z")))
     }
 
     #[test]
     fn compute_defeat_scores() {
-        assert_eq!(
-            6,
-            compute_total_score(&vec!(
-                String::from("A Z"),
-                String::from("B X"),
-                String::from("C Y")
-            ))
-        )
+        assert_eq!(6, compute_total_score(&vec!("A Z", "B X", "C Y")))
     }
 
     #[test]
     fn compute_sample_moves() {
-        assert_eq!(
-            12,
-            compute_moves(&vec!(
-                String::from("A Y"),
-                String::from("B X"),
-                String::from("C Z")
-            ))
-        )
+        assert_eq!(12, compute_moves(&vec!("A Y", "B X", "C Z")))
     }
 
     #[test]
     fn compute_victory_moves() {
-        assert_eq!(
-            24,
-            compute_moves(&vec!(
-                String::from("A Z"),
-                String::from("B Z"),
-                String::from("C Z")
-            ))
-        )
+        assert_eq!(24, compute_moves(&vec!("A Z", "B Z", "C Z")))
     }
 
     #[test]
     fn compute_defeat_moves() {
-        assert_eq!(
-            6,
-            compute_moves(&vec!(
-                String::from("A X"),
-                String::from("B X"),
-                String::from("C X")
-            ))
-        )
+        assert_eq!(6, compute_moves(&vec!("A X", "B X", "C X")))
     }
 
     #[test]
     fn compute_draw_moves() {
-        assert_eq!(
-            15,
-            compute_moves(&vec!(
-                String::from("A Y"),
-                String::from("B Y"),
-                String::from("C Y")
-            ))
-        )
+        assert_eq!(15, compute_moves(&vec!("A Y", "B Y", "C Y")))
     }
 }
