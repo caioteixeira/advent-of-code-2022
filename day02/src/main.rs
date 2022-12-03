@@ -13,11 +13,14 @@ fn main() {
 
     let input: Vec<String> = read_lines(filename).unwrap().flatten().collect();
 
-    let total_score = compute_total_score(input);
+    let total_score = compute_total_score(&input);
     println!("Part 1: Total score is {}", total_score);
+
+    let total_moves_score = compute_moves(&input);
+    println!("Part 2: Total score is {}", total_moves_score);
 }
 
-fn compute_total_score(input: Vec<String>) -> u32 {
+fn compute_total_score(input: &Vec<String>) -> u32 {
     let mut score = 0;
 
     for line in input {
@@ -40,6 +43,31 @@ fn compute_total_score(input: Vec<String>) -> u32 {
     score
 }
 
+fn compute_moves(input: &Vec<String>) -> u32 {
+    let mut score = 0;
+
+    for line in input {
+        let strategy = line.split_once(' ').unwrap();
+
+        let opponent_action: u32 = match strategy.0 {
+            "A" => 1,
+            "B" => 2,
+            "C" => 3,
+            _ => panic!("invalid action!"),
+        };
+
+        score += match strategy.1 {
+            "X" => (opponent_action + 3 - 2) % 3 + 1,
+            "Y" => 3 + opponent_action,
+            "Z" => 6 + opponent_action % 3 + 1,
+            _ => 0,
+        };
+        //println!("{} - {} -> {}", strategy.0, strategy.1, score);
+    }
+
+    score
+}
+
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
 where
     P: AsRef<Path>,
@@ -50,13 +78,14 @@ where
 
 #[cfg(test)]
 mod tests {
+    use crate::compute_moves;
     use crate::compute_total_score;
 
     #[test]
     fn compute_sample_score() {
         assert_eq!(
             15,
-            compute_total_score(vec!(
+            compute_total_score(&vec!(
                 String::from("A Y"),
                 String::from("B X"),
                 String::from("C Z")
@@ -68,7 +97,7 @@ mod tests {
     fn compute_victories() {
         assert_eq!(
             24,
-            compute_total_score(vec!(
+            compute_total_score(&vec!(
                 String::from("A Y"),
                 String::from("B Z"),
                 String::from("C X")
@@ -80,7 +109,7 @@ mod tests {
     fn compute_draw_scores() {
         assert_eq!(
             15,
-            compute_total_score(vec!(
+            compute_total_score(&vec!(
                 String::from("A X"),
                 String::from("B Y"),
                 String::from("C Z")
@@ -92,9 +121,57 @@ mod tests {
     fn compute_defeat_scores() {
         assert_eq!(
             6,
-            compute_total_score(vec!(
+            compute_total_score(&vec!(
                 String::from("A Z"),
                 String::from("B X"),
+                String::from("C Y")
+            ))
+        )
+    }
+
+    #[test]
+    fn compute_sample_moves() {
+        assert_eq!(
+            12,
+            compute_moves(&vec!(
+                String::from("A Y"),
+                String::from("B X"),
+                String::from("C Z")
+            ))
+        )
+    }
+
+    #[test]
+    fn compute_victory_moves() {
+        assert_eq!(
+            24,
+            compute_moves(&vec!(
+                String::from("A Z"),
+                String::from("B Z"),
+                String::from("C Z")
+            ))
+        )
+    }
+
+    #[test]
+    fn compute_defeat_moves() {
+        assert_eq!(
+            6,
+            compute_moves(&vec!(
+                String::from("A X"),
+                String::from("B X"),
+                String::from("C X")
+            ))
+        )
+    }
+
+    #[test]
+    fn compute_draw_moves() {
+        assert_eq!(
+            15,
+            compute_moves(&vec!(
+                String::from("A Y"),
+                String::from("B Y"),
                 String::from("C Y")
             ))
         )
