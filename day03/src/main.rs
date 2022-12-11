@@ -5,6 +5,12 @@ fn main() {
 
     let priorities_sum = sum_priority_of_duplicated_items(&input);
     println!("Part 1: Sum of priorities is {}", priorities_sum);
+
+    let badge_priorities_sum = sum_priority_of_badges(&input);
+    println!(
+        "Part 2: Sum of badge priorities is {}",
+        badge_priorities_sum
+    )
 }
 
 fn parse_input(input: &str) -> Vec<&str> {
@@ -18,6 +24,23 @@ fn sum_priority_of_duplicated_items(input: &[&str]) -> u32 {
         .map(|line| find_duplicated_char(line))
         .map(convert_to_priority)
         .sum()
+}
+
+fn sum_priority_of_badges(input: &[&str]) -> u32 {
+    input.chunks(3).map(find_badge_priority).sum()
+}
+
+fn find_badge_priority(group: &[&str]) -> u32 {
+    let intersection = group
+        .iter()
+        // Creates a hash set for chars in  each line
+        .map(|rucksack| rucksack.chars().to_owned().collect::<HashSet<char>>())
+        // Get the items that are present in all the lines
+        .reduce(|intersection, rucksack| intersection.intersection(&rucksack).cloned().collect());
+    match intersection {
+        Some(items) => convert_to_priority(*items.iter().next().unwrap()),
+        None => unreachable!(),
+    }
 }
 
 fn convert_to_priority(item: char) -> u32 {
@@ -42,6 +65,7 @@ mod tests {
     use crate::convert_to_priority;
     use crate::find_duplicated_char;
     use crate::parse_input;
+    use crate::sum_priority_of_badges;
     use crate::sum_priority_of_duplicated_items;
 
     #[test]
@@ -64,7 +88,13 @@ mod tests {
 
     #[test]
     fn test_sum_priorities_of_duplicated_items() {
-        let input = parse_input(include_str!("test_input_pt1.txt"));
+        let input = parse_input(include_str!("test_input.txt"));
         assert_eq!(157, sum_priority_of_duplicated_items(&input));
+    }
+
+    #[test]
+    fn test_sum_of_badge_priorities() {
+        let input = parse_input(include_str!("test_input.txt"));
+        assert_eq!(70, sum_priority_of_badges(&input));
     }
 }
