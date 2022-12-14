@@ -37,11 +37,22 @@ impl AssigmentPair {
     fn is_one_fully_contained(&self) -> bool {
         self.elf1.fully_contains(&self.elf2) || self.elf2.fully_contains(&self.elf1)
     }
+
+    fn overlaps(&self) -> bool {
+        (self.elf1.start <= self.elf2.start && self.elf2.start <= self.elf1.end)
+            || (self.elf2.start <= self.elf1.start && self.elf1.start <= self.elf2.end)
+    }
 }
 
 fn main() {
     let priorities_sum = how_many_fully_contains(include_str!("input.txt"));
-    println!("Part 1: Sum of priorities is {}", priorities_sum);
+    println!(
+        "Part 1: Number of fully contained pairs is {}",
+        priorities_sum
+    );
+
+    let priorities_sum = how_many_overlap(include_str!("input.txt"));
+    println!("Part 2: Number of overlapping pairs is {}", priorities_sum);
 }
 
 fn parse_input(input: &str) -> Vec<AssigmentPair> {
@@ -65,12 +76,23 @@ fn how_many_fully_contains(input: &str) -> u32 {
         .count() as u32
 }
 
+fn how_many_overlap(input: &str) -> u32 {
+    let pairs = parse_input(input);
+    pairs.iter().filter(|pair| pair.overlaps()).count() as u32
+}
+
 #[cfg(test)]
 mod tests {
     use crate::how_many_fully_contains;
+    use crate::how_many_overlap;
 
     #[test]
     fn test_fully_contained() {
         assert_eq!(2, how_many_fully_contains(include_str!("test_input.txt")));
+    }
+
+    #[test]
+    fn test_how_many_overlaps() {
+        assert_eq!(4, how_many_overlap(include_str!("test_input.txt")));
     }
 }
